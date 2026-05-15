@@ -4,7 +4,18 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [
+      externalizeDepsPlugin({
+        exclude: ['@xenova/transformers']
+      })
+    ],
+    build: {
+      rollupOptions: {
+        output: {
+          inlineDynamicImports: false
+        }
+      }
+    },
     resolve: {
       alias: {
         '@main': resolve('src/main'),

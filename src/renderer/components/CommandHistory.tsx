@@ -31,6 +31,6 @@ export function CommandHistory({ entries }: CommandHistoryProps) {
           )}
         </AnimatePresence>
       </motion.div>
-    </motion.div>
+    </div>
   )
 }

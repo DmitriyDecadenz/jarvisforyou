@@ -8,6 +8,8 @@ import { getSettings, getCustomCommands } from './settings-store'
 import { isOpenAIConfigured } from '../ai/openai-client'
 import { getConfig } from '../shared/config'
 import * as macos from '../system/macos'
+import { resolveActiveSttEngine } from '../voice/stt-router'
+import { getLocalWhisperStatus } from '../voice/local-whisper'
 
 export class JarvisCore {
   private state: JarvisState = 'idle'
@@ -42,30 +44,30 @@ export class JarvisCore {
     this.broadcastStatus()
   }
 
-  async processTranscript(text: string, options?: { fromWake?: boolean }): Promise<void> {
+  async processTranscript(text: string): Promise<void> {
     const settings = getSettings()
     const trimmed = text.trim()
     if (!trimmed) return
 
-    if (this.state === 'listening_wake' || !options?.fromWake) {
-      if (!containsWakeWord(trimmed, settings.wakeWords) && this.state === 'listening_wake') {
-        return
-      }
-    }
+    const hasWake = containsWakeWord(trimmed, settings.wakeWords)
+    if (this.listening && !hasWake) return
 
     let command = stripWakeWord(trimmed, settings.wakeWords)
-    if (!command && containsWakeWord(trimmed, settings.wakeWords)) {
+
+    // Wake word only — prompt for command
+    if (hasWake && command.length < 3) {
       this.setState('listening_command')
       this.emit('jarvis:state-update', { state: 'listening_command', message: 'Yes, sir?' })
+      try {
+        await speak('Yes, sir?')
+      } catch {
+        /* ignore */
+      }
       return
     }
 
     if (!command) command = trimmed
-
-    if (/^confirm$/i.test(command)) {
-      // Voice confirm handled via UI; extend with last pending id if needed
-      return
-    }
+    if (/^confirm$/i.test(command)) return
 
     await this.runCommand(command)
   }
@@ -95,13 +97,16 @@ export class JarvisCore {
 
   getSystemStatus(): SystemStatus {
     const cfg = getConfig()
+    const whisper = getLocalWhisperStatus()
     return {
       online: isOpenAIConfigured() || cfg.ollamaEnabled,
       microphone: this.listening,
       listening: this.listening,
       speaking: isSpeaking(),
       openaiConfigured: isOpenAIConfigured(),
-      ollamaEnabled: cfg.ollamaEnabled
+      ollamaEnabled: cfg.ollamaEnabled,
+      sttEngine: resolveActiveSttEngine(),
+      localWhisper: whisper.state
     }
   }
 

@@ -34,7 +34,7 @@ export default function App() {
   const [lastResponse, setLastResponse] = useState('')
   const [pendingConfirm, setPendingConfirm] = useState<CommandResult | null>(null)
 
-  const { interim, supported } = useVoiceEngine(listening)
+  const { interim, supported, sttEngine, whisperStatus } = useVoiceEngine(listening)
 
   useEffect(() => {
     void window.jarvis.getHistory().then(setHistory)
@@ -102,8 +102,19 @@ export default function App() {
           >
             {listening ? '● LISTENING' : '○ START VOICE'}
           </button>
+          {whisperStatus?.state === 'loading' && (
+            <span className="stt-loading">
+              Loading Whisper {whisperStatus.progress != null ? `${Math.round(whisperStatus.progress * 100)}%` : ''}
+            </span>
+          )}
+          {sttEngine === 'local' && whisperStatus?.state === 'ready' && (
+            <span className="stt-badge">Local Whisper</span>
+          )}
+          {sttEngine === 'webspeech' && listening && (
+            <span className="stt-badge fallback">Web Speech</span>
+          )}
           {!supported && listening && (
-            <span className="warn">Speech API unavailable</span>
+            <span className="warn">Microphone / STT unavailable</span>
           )}
         </div>
       </motion.header>

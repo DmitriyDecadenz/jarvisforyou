@@ -46,6 +46,23 @@ export interface HistoryEntry {
   success: boolean
 }
 
+export type SttEngine = 'local' | 'webspeech'
+
+export type LocalWhisperState = 'disabled' | 'loading' | 'ready' | 'error'
+
+export interface LocalWhisperStatus {
+  state: LocalWhisperState
+  model: string
+  message: string
+  progress?: number
+}
+
+export interface SttStatus {
+  activeEngine: SttEngine
+  preferredEngine: SttEngine | 'auto'
+  whisper: LocalWhisperStatus
+}
+
 export interface SystemStatus {
   online: boolean
   microphone: boolean
@@ -53,6 +70,8 @@ export interface SystemStatus {
   speaking: boolean
   openaiConfigured: boolean
   ollamaEnabled: boolean
+  sttEngine?: SttEngine
+  localWhisper?: LocalWhisperState
   cpuLoad?: string
   memoryUsed?: string
 }

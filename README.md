@@ -7,7 +7,7 @@ A production-oriented macOS desktop assistant inspired by Iron Man's JARVIS. Bui
 ## Features
 
 - **Voice activation** — wake words: "Jarvis", "Hey Jarvis"
-- **Speech-to-text** — Web Speech API (continuous) + optional OpenAI Whisper
+- **Speech-to-text** — Local Whisper (auto-starts with app) + Web Speech API fallback
 - **Text-to-speech** — macOS `say` (Daniel voice) or OpenAI TTS
 - **System control** — apps, volume, brightness, screenshots, files, clipboard, terminal, lock, shutdown/restart (with confirmation)
 - **AI conversation** — OpenAI GPT with memory; optional **Ollama** offline mode
@@ -51,6 +51,9 @@ Copy `.env.example` to `.env`:
 |----------|-------------|
 | `OPENAI_API_KEY` | Required for AI chat and optional Whisper/TTS |
 | `OPENAI_CHAT_MODEL` | Default: `gpt-4o-mini` |
+| `JARVIS_STT_ENGINE` | `auto` (default), `local`, or `webspeech` |
+| `JARVIS_WHISPER_AUTO_START` | `true` — load local model on launch |
+| `JARVIS_WHISPER_LOCAL_MODEL` | `Xenova/whisper-tiny.en` or `Xenova/whisper-base.en` |
 | `JARVIS_TTS_ENGINE` | `macos` (default) or `openai` |
 | `JARVIS_MACOS_VOICE` | Default: `Daniel` |
 | `OLLAMA_ENABLED` | `true` for local LLM via Ollama |

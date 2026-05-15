@@ -14,6 +14,13 @@ import { createTray } from './tray'
 import { getSettings, saveSettings } from './settings-store'
 import { getConfig } from '../shared/config'
 import { closeBrowser } from '../automation/browser'
+import {
+  startLocalWhisper,
+  stopLocalWhisper,
+  transcribeLocal,
+  setLocalWhisperProgressCallback
+} from '../voice/local-whisper'
+import { getSttStatus } from '../voice/stt-router'
 
 let mainWindow: BrowserWindow | null = null
 const jarvis = new JarvisCore()
@@ -86,11 +93,22 @@ function registerIpc(): void {
       mainWindow?.webContents.send('jarvis:transcript', { text, interim: true })
       return
     }
-    await jarvis.processTranscript(text, { fromWake: true })
+    await jarvis.processTranscript(text)
   })
   ipcMain.handle('jarvis:open-external', (_, url: string) => shell.openExternal(url))
   ipcMain.on('jarvis:voice-level', (_, level: number) => {
     mainWindow?.webContents.send('jarvis:voice-level', { level, timestamp: Date.now() })
+  })
+  ipcMain.handle('jarvis:get-stt-status', () => getSttStatus())
+  ipcMain.handle('jarvis:transcribe-local', async (_, samples: number[]) => {
+    const audio = new Float32Array(samples)
+    return transcribeLocal(audio)
+  })
+  ipcMain.handle('jarvis:restart-whisper', async () => {
+    await stopLocalWhisper()
+    const status = await startLocalWhisper()
+    mainWindow?.webContents.send('jarvis:whisper-status', status)
+    return getSttStatus()
   })
 }
 
@@ -111,8 +129,19 @@ function requestPermissions(): void {
   systemPreferences.askForMediaAccess('microphone').catch(() => {})
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   requestPermissions()
+
+  setLocalWhisperProgressCallback((status) => {
+    mainWindow?.webContents.send('jarvis:whisper-status', status)
+  })
+
+  // Auto-start local Whisper model in background
+  void startLocalWhisper().then((status) => {
+    mainWindow?.webContents.send('jarvis:whisper-status', status)
+    mainWindow?.webContents.send('jarvis:stt-ready', getSttStatus())
+  })
+
   createWindow()
   registerIpc()
   registerShortcuts()
@@ -139,6 +168,7 @@ app.whenReady().then(() => {
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
   void closeBrowser()
+  void stopLocalWhisper()
 })
 
 app.on('window-all-closed', () => {

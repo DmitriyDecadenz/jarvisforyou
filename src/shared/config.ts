@@ -33,6 +33,10 @@ export function getConfig() {
       .filter(Boolean),
     confirmDestructive: process.env.JARVIS_CONFIRM_DESTRUCTIVE !== 'false',
     launchAtLogin: process.env.JARVIS_LAUNCH_AT_LOGIN === 'true',
-    startListening: process.env.JARVIS_START_LISTENING !== 'false'
+    startListening: process.env.JARVIS_START_LISTENING !== 'false',
+    sttEngine: (process.env.JARVIS_STT_ENGINE ?? 'auto') as 'local' | 'webspeech' | 'auto',
+    whisperAutoStart: process.env.JARVIS_WHISPER_AUTO_START !== 'false',
+    whisperLocalModel: process.env.JARVIS_WHISPER_LOCAL_MODEL ?? 'Xenova/whisper-tiny.en',
+    whisperLanguage: process.env.JARVIS_WHISPER_LANGUAGE ?? 'english'
   }
 }

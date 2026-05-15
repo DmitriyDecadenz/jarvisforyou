@@ -28,6 +28,12 @@ export function StatusPanel({ status }: StatusPanelProps) {
         <li>
           <Dot on={status.ollamaEnabled} /> Ollama {status.ollamaEnabled ? 'Enabled' : 'Off'}
         </li>
+        <li>
+          <Dot on={status.sttEngine === 'local' && status.localWhisper === 'ready'} /> STT{' '}
+          {status.sttEngine === 'local'
+            ? `Local Whisper (${status.localWhisper ?? '…'})`
+            : 'Web Speech (fallback)'}
+        </li>
         {status.cpuLoad && (
           <li className="metric">
             CPU <span>{status.cpuLoad}</span>

@@ -109,6 +109,24 @@
   color: var(--red);
 }
 
+.stt-loading {
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: 0.05em;
+}
+
+.stt-badge {
+  font-size: 10px;
+  color: var(--cyan);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.stt-badge.fallback {
+  color: var(--muted);
+}
+
 .main-grid {
   flex: 1;
   display: grid;

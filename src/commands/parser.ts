@@ -106,6 +106,10 @@ export function parseCommand(text: string): ParsedCommand | null {
     return { category: 'power', intent: 'restart', params: {}, raw }
   }
 
+  // Summarize URL
+  m = lower.match(/summarize\s+(https?:\/\/.+|www\.\S+|\S+\.\S+)/i)
+  if (m) return { category: 'web', intent: 'summarize', params: { url: m[1].trim() }, raw }
+
   // Reminder (bonus)
   m = lower.match(/(?:remind me|set a reminder)\s+(?:to\s+)?(.+)/i)
   if (m) return { category: 'system', intent: 'reminder', params: { text: m[1].trim() }, raw }

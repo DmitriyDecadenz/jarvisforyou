@@ -4,6 +4,8 @@ import type {
   CommandResult,
   HistoryEntry,
   JarvisState,
+  LocalWhisperStatus,
+  SttStatus,
   SystemStatus
 } from '../shared/types'
 
@@ -17,6 +19,9 @@ export interface JarvisAPI {
   getSettings: () => Promise<AppSettings>
   saveSettings: (partial: Partial<AppSettings>) => Promise<AppSettings>
   getSystemStatus: () => Promise<SystemStatus>
+  getSttStatus: () => Promise<SttStatus>
+  transcribeLocal: (samples: number[]) => Promise<string>
+  restartWhisper: () => Promise<SttStatus>
   sendTranscript: (text: string, interim?: boolean) => Promise<void>
   sendVoiceLevel: (level: number) => void
   openExternal: (url: string) => Promise<void>
@@ -26,6 +31,8 @@ export interface JarvisAPI {
   onSystemStatus: (cb: (status: SystemStatus) => void) => () => void
   onTranscript: (cb: (data: { text: string; interim?: boolean }) => void) => () => void
   onVoiceLevel: (cb: (data: { level: number; timestamp: number }) => void) => () => void
+  onWhisperStatus: (cb: (status: LocalWhisperStatus) => void) => () => void
+  onSttReady: (cb: (status: SttStatus) => void) => () => void
 }
 
 function subscribe<T>(channel: string, cb: (data: T) => void): () => void {
@@ -44,6 +51,9 @@ const api: JarvisAPI = {
   getSettings: () => ipcRenderer.invoke('jarvis:get-settings'),
   saveSettings: (partial) => ipcRenderer.invoke('jarvis:save-settings', partial),
   getSystemStatus: () => ipcRenderer.invoke('jarvis:system-status'),
+  getSttStatus: () => ipcRenderer.invoke('jarvis:get-stt-status'),
+  transcribeLocal: (samples) => ipcRenderer.invoke('jarvis:transcribe-local', samples),
+  restartWhisper: () => ipcRenderer.invoke('jarvis:restart-whisper'),
   sendTranscript: (text, interim) =>
     ipcRenderer.invoke('jarvis:transcript-from-renderer', text, interim),
   sendVoiceLevel: (level) => ipcRenderer.send('jarvis:voice-level', level),
@@ -53,7 +63,9 @@ const api: JarvisAPI = {
   onHistory: (cb) => subscribe('jarvis:history', cb),
   onSystemStatus: (cb) => subscribe('jarvis:system-status', cb),
   onTranscript: (cb) => subscribe('jarvis:transcript', cb),
-  onVoiceLevel: (cb) => subscribe('jarvis:voice-level', cb)
+  onVoiceLevel: (cb) => subscribe('jarvis:voice-level', cb),
+  onWhisperStatus: (cb) => subscribe('jarvis:whisper-status', cb),
+  onSttReady: (cb) => subscribe('jarvis:stt-ready', cb)
 }
 
 contextBridge.exposeInMainWorld('jarvis', api)
