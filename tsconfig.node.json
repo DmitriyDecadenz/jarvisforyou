@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "out",
+    "baseUrl": ".",
+    "paths": {
+      "@main/*": ["src/main/*"],
+      "@shared/*": ["src/shared/*"],
+      "@voice/*": ["src/voice/*"],
+      "@ai/*": ["src/ai/*"],
+      "@system/*": ["src/system/*"],
+      "@automation/*": ["src/automation/*"],
+      "@commands/*": ["src/commands/*"]
+    }
+  },
+  "include": [
+    "src/main/**/*",
+    "src/preload/**/*",
+    "src/voice/**/*",
+    "src/ai/**/*",
+    "src/system/**/*",
+    "src/automation/**/*",
+    "src/commands/**/*",
+    "src/shared/**/*",
+    "electron.vite.config.ts"
+  ]
+}

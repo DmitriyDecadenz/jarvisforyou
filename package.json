@@ -1,0 +1,65 @@
+{
+  "name": "jarvis",
+  "version": "1.0.0",
+  "description": "JARVIS — macOS AI desktop assistant",
+  "main": "out/main/index.js",
+  "author": "JARVIS",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "package": "npm run build && electron-builder --mac",
+    "package:dmg": "npm run build && electron-builder --mac dmg",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "electron-store": "^8.2.0",
+    "framer-motion": "^12.6.3",
+    "openai": "^4.96.0",
+    "playwright-core": "^1.51.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^35.1.2",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^3.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.2.6"
+  },
+  "build": {
+    "appId": "com.jarvis.assistant",
+    "productName": "JARVIS",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": ["dmg", "zip"],
+      "icon": "resources/icon.icns",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "JARVIS needs microphone access for voice commands.",
+        "NSSpeechRecognitionUsageDescription": "JARVIS uses speech recognition for voice activation."
+      }
+    },
+    "dmg": {
+      "title": "JARVIS",
+      "background": null
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    }
+  }
+}
